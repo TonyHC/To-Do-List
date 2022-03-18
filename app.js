@@ -49,9 +49,9 @@ const listSchema = {
 const List = mongoose.model("List", listSchema);
 
 app.get("/", function (req, res) {
-    Item.find({}, function(err, foundItems) {
+    Item.find({}, function (err, foundItems) {
         if (foundItems.length === 0) {
-            Item.insertMany(defaultItems, function(err) {
+            Item.insertMany(defaultItems, function (err) {
                 if (err) {
                     console.log(err);
                 } else {
@@ -69,19 +69,20 @@ app.get("/", function (req, res) {
     });
 });
 
-app.post("/", function(req, res) {
-    let item = req.body.taskItem;
+app.post("/", function (req, res) {
+    const itemName = req.body.taskItem;
 
-    if (req.body.list === "Work") {
-        workItems.push(item);
-        res.redirect("/work");
-    } else {
-        items.push(item);
-        res.redirect("/");
-    }
+    const item = new Item({
+        name: itemName,
+        date: new Date()
+    });
+
+    item.save();
+
+    res.redirect("/");
 });
 
-app.get("/work", function(req, res) {
+app.get("/work", function (req, res) {
     res.render("list", {
         listTitle: "Work List",
         newListItems: workItems
