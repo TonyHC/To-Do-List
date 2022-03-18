@@ -69,6 +69,29 @@ app.get("/", function (req, res) {
     });
 });
 
+app.get("/:customListName", function(req, res) {
+    const customListName = req.params.customListName;
+
+    List.findOne({name: customListName}, function(err, foundList) {
+        if (!err) {
+            if (!foundList) {
+                const list = new List({
+                    name: customListName,
+                    items: defaultItems
+                }); 
+            
+                list.save();
+                res.redirect("/" + customListName);
+            } else {
+                res.render("list", {
+                    listTitle: foundList.name,
+                    newListItems: foundList.items
+                });
+            }
+        }
+    });
+});
+
 app.post("/", function (req, res) {
     const itemName = req.body.taskItem;
 
