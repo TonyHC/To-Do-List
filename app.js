@@ -29,12 +29,12 @@ const item1 = new Item({
 });
 
 const item2 = new Item({
-    name: "Click on (+) sign to add a new item",
+    name: "Click on plus sign to add a new item",
     date: new Date()
 });
 
 const item3 = new Item({
-    name: "Click on (x) to delete a existing item",
+    name: "Click on checkbox to delete a existing item",
     date: new Date()
 });
 
@@ -70,20 +70,20 @@ app.get("/", function (req, res) {
     });
 });
 
-app.get("/:customListName", function (req, res) {
+app.get("/list/:customListName", function (req, res) {
     const customListName = _.capitalize(req.params.customListName);
 
     List.findOne({name: customListName}, function (err, foundList) {
         if (!err) {
-            if (!foundList) {
+            if (!foundList) { 
                 const list = new List({
                     name: customListName,
                     items: defaultItems
                 });
 
                 list.save();
-                res.redirect("/" + customListName);
-            } else {
+                res.redirect("/list/" + customListName);
+            } else { 
                 res.render("list", {
                     listTitle: foundList.name,
                     newListItems: foundList.items
@@ -108,12 +108,10 @@ app.post("/", function (req, res) {
         item.save();
         res.redirect("/");
     } else { // Custom list using Lists collection
-        List.findOne({
-            name: listName
-        }, function (err, foundList) {
+        List.findOne({name: listName}, function (err, foundList) {
             foundList.items.push(item);
             foundList.save();
-            res.redirect("/" + listName);
+            res.redirect("/list/" + listName);
         });
     }
 });
@@ -132,7 +130,7 @@ app.post("/deleteItem", function (req, res) {
         });
     } else { // Update the desired custom list by using $pull to remove the clicked item
         List.findOneAndUpdate({name: listName}, {$pull: {items: {_id: checkedItemId}}}, function(err, foundList) {
-            res.redirect("/" + listName);
+            res.redirect("/list/" + listName);
         });
     }
 });
