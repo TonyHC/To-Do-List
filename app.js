@@ -69,17 +69,17 @@ app.get("/", function (req, res) {
     });
 });
 
-app.get("/:customListName", function(req, res) {
+app.get("/:customListName", function (req, res) {
     const customListName = req.params.customListName;
 
-    List.findOne({name: customListName}, function(err, foundList) {
+    List.findOne({name: customListName}, function (err, foundList) {
         if (!err) {
             if (!foundList) {
                 const list = new List({
                     name: customListName,
                     items: defaultItems
-                }); 
-            
+                });
+
                 list.save();
                 res.redirect("/" + customListName);
             } else {
@@ -94,31 +94,36 @@ app.get("/:customListName", function(req, res) {
 
 app.post("/", function (req, res) {
     const itemName = req.body.taskItem;
+    const listName = req.body.list.replace(",", "");
+    const currentDay = date.getCurrentDay();
 
     const item = new Item({
         name: itemName,
         date: new Date()
     });
 
-    item.save();
-
-    res.redirect("/");
+    // Main list using Items collection
+    if (listName === currentDay) {
+        item.save();
+        res.redirect("/");
+    } else { // Custom list using Lists collection
+        List.findOne({
+            name: listName
+        }, function (err, foundList) {
+            foundList.items.push(item);
+            foundList.save();
+            res.redirect("/" + listName);
+        });
+    }
 });
 
-app.post("/deleteItem", function(req, res) {
+app.post("/deleteItem", function (req, res) {
     const checkedItemId = req.body.checkBox;
 
-    Item.findByIdAndRemove(checkedItemId, function(err) {
+    Item.findByIdAndRemove(checkedItemId, function (err) {
         if (!err) {
             res.redirect("/");
         }
-    });
-});
-
-app.get("/work", function (req, res) {
-    res.render("list", {
-        listTitle: "Work List",
-        newListItems: workItems
     });
 });
 
