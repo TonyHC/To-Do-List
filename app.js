@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const _ = require("lodash");
+const dotenv = require("dotenv");
 const date = require(__dirname + "/date.js"); // Export a local module from date.js
 
 const app = express();
@@ -11,8 +12,10 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 app.set('view engine', 'ejs');
 
-// Connect to Local MongoDB
-mongoose.connect("mongodb://localhost:27017/toDoListDB");
+dotenv.config();
+
+// Connect to Mongodb Atlas
+mongoose.connect("mongodb+srv://admin-tony:" + process.env.MONGODB_ATLAS_PASS  + "@projectcluster.wd2lj.mongodb.net/toDoListDB");
 
 // Items Schema
 const itemsSchema = {
@@ -135,6 +138,12 @@ app.post("/deleteItem", function (req, res) {
     }
 });
 
-app.listen(3000, function () {
-    console.log("Server is running on port 3000.");
+// Let Heroku chose the port when loading the deployed web app or chose port 3000 when testing locally
+let port = process.env.PORT;
+if (port == null || port == "") {
+    port = 3000;
+}
+
+app.listen(port, function () {
+    console.log("Server has start successfully.");
 });
