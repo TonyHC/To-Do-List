@@ -9,13 +9,3 @@ exports.getCurrentDate = function() {
     
     return day = today.toLocaleDateString("en-US", options);
 }
-
-exports.getCurrentDay = function() {
-    const today = new Date();
-
-    const options = {
-        weekday: "long",
-    };
-    
-    return day = today.toLocaleDateString("en-US", options);
-}

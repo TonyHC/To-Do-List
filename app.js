@@ -94,8 +94,8 @@ app.get("/:customListName", function (req, res) {
 
 app.post("/", function (req, res) {
     const itemName = req.body.taskItem;
-    const listName = req.body.list.replace(",", "");
-    const currentDay = date.getCurrentDay();
+    const listName = req.body.list;
+    const currentDay = date.getCurrentDate();
 
     const item = new Item({
         name: itemName,
@@ -119,12 +119,21 @@ app.post("/", function (req, res) {
 
 app.post("/deleteItem", function (req, res) {
     const checkedItemId = req.body.checkBox;
+    const listName = req.body.listName;
+    const currentDay = date.getCurrentDate();
 
-    Item.findByIdAndRemove(checkedItemId, function (err) {
-        if (!err) {
-            res.redirect("/");
-        }
-    });
+    // Delete the item from current default list
+    if (listName === currentDay) {
+        Item.findByIdAndRemove(checkedItemId, function (err) {
+            if (!err) {
+                res.redirect("/");
+            }
+        });
+    } else { // Update the desired custom list by using $pull to remove the clicked item
+        List.findOneAndUpdate({name: listName}, {$pull: {items: {_id: checkedItemId}}}, function(err, foundList) {
+            res.redirect("/" + listName);
+        });
+    }
 });
 
 app.listen(3000, function () {
